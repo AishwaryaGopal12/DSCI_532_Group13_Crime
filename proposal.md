@@ -1,5 +1,5 @@
 # Proposal
-Date: January 16, 2021
+Date: January 16, 2021<br>
 Authors: Aditya Bhatraju, Aishwarya Gopal, Charles Suresh
 
 ## Motivation and Purpose
