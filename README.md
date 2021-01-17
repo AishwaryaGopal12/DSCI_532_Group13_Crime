@@ -1,4 +1,4 @@
-# Crime Rates in the US Visualization App
+# Crime Rates in the US
 
 Contributors | Github | 
 --- | --- |
