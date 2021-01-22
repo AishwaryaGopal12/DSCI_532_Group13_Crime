@@ -10,6 +10,7 @@ import pandas as pd
 data = pd.read_csv("./ucr_crime_1975_2015.csv")
 
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
+server = app.server
 
 app.layout = dbc.Container([
     dbc.Row([
@@ -45,13 +46,11 @@ app.layout = dbc.Container([
     Input('crime', 'value')
 )
 def plot_trendchart(state, crime):
-    chart = alt.Chart(data).mark_point().encode(
+    chart = alt.Chart(data).mark_line().encode(
         x = 'year',
         y = 'homs_sum'
     )
-    # .transform_filter(
-    #     datum.department_name == state
-    # ).interactive()
     return chart.to_html()
+
 if __name__ == '__main__':
     app.run_server(debug = True)
