@@ -16,11 +16,11 @@ sum_dict = {crime_list[i]: sum_list[i] for i in range(len(crime_list))}
 rate_dict = {crime_list[i]: rate_list[i] for i in range(len(crime_list))}
 crime_dict = {'sum_dict': sum_dict, 'rate_dict': rate_dict}
 
-data_raw = pd.read_csv("data/ucr_crime_1975_2015.csv")
+data_raw = pd.read_csv("data/raw/ucr_crime_1975_2015.csv")
 
 def data_processing(data):
     data['state'] = data['ORI'].str[:2]
-    states = pd.read_csv('./states.csv')
+    states = pd.read_csv('data/raw/states.csv')
     data_with_state = pd.merge(data, states, how = 'left', left_on = 'state', right_on = 'Abbreviation')
     data_with_state = data_with_state.drop(['state', 'Abbreviation', 'url', 'source'], axis = 1)
     return data_with_state
