@@ -151,9 +151,9 @@ def plot_geochart(state, crime, year_range, metric):
 )
 def trend_chart(state, crime, year_range, metric):
 
-    final_df = data_filtering_trendchart(state, crime, metric, year_range, data_crime)
+    trend_chart_df = data_filtering_trendchart(state, crime, metric, year_range, data_crime)
 
-    chart = alt.Chart(final_df).mark_line().encode(
+    chart = alt.Chart(trend_chart_df).mark_line().encode(
         alt.X('year'),
         alt.Y('crime_count'),
         alt.Color('crime'))
