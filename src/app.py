@@ -39,6 +39,27 @@ def data_filtering_geochart(state, crime, metric, year_range, data_crime):
     results_df = pd.merge(results, pop, how = 'right', left_on = 'State', right_on = 'state')
     return results_df
 
+def data_filtering_geochart(state, crime, metric, year_range, data_crime):
+    pop = data.population_engineers_hurricanes()
+    if year_range is not None:
+        data_crime = data_crime.loc[data_crime["year"].between(year_range[0], year_range[1])]
+    results = data_crime.groupby('State')['violent_per_100k'].sum()
+    # crimes = [crime_dict[metric][x] for x in crime]
+    # results = data_crime.groupby('State')[[crimes]].sum()
+    results.to_frame()
+    results_df = pd.merge(results, pop, how = 'right', left_on = 'State', right_on = 'state')
+    return results_df
+
+def data_filtering_trendchart(state, crime, metric, year_range, data_crime):
+    
+    crimes = [crime_dict[metric][x] for x in crime]
+    trend_data = data_crime[data_crime['State'].isin(state)]
+    trend_data = trend_data[(trend_data['year']>=year_range[0]) & (trend_data['year']<=year_range[1])]
+    trend_data = trend_data.groupby('year')[crimes].mean().reset_index()
+    trend_data = trend_data.melt(id_vars = "year", var_name = "crime", value_name = "crime_count")
+
+    return trend_data
+
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 server = app.server
 
@@ -100,7 +121,6 @@ app.layout = dbc.Container([
 ])
 @app.callback(
     Output('geochart', 'srcDoc'),
-#    Output('trendchart', 'srcDoc'),
     Input('state', 'value'),
     Input('crime', 'value'),
     Input('year_range', 'value'),
@@ -120,11 +140,6 @@ def plot_geochart(state, crime, year_range, metric):
     ).project(type='albersUsa'
     )
 
-    # trend_chart = alt.Chart(data_crime).mark_line().encode(
-    #     x = 'year',
-    #     y = 'homs_sum'
-    # )
-
     return geo_chart.to_html()
 
 @app.callback(
@@ -135,14 +150,8 @@ def plot_geochart(state, crime, year_range, metric):
     Input('metric', 'value')
 )
 def trend_chart(state, crime, year_range, metric):
-    
 
-    new_df = data_crime[data_crime['State'].isin(state)]
-    new_df = new_df[(new_df['year']>=year_range[0]) & (new_df['year']<=year_range[1])]
-    crimes = [crime_dict[metric][x] for x in crime]
-    # crimes = [sum_dict[x] for x in crimetype]
-    new_df = new_df.groupby('year')[crimes].mean().reset_index()
-    final_df = new_df.melt(id_vars = "year", var_name = "crime", value_name = "crime_count")
+    final_df = data_filtering_trendchart(state, crime, metric, year_range, data_crime)
 
     chart = alt.Chart(final_df).mark_line().encode(
         alt.X('year'),
