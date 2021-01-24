@@ -6,6 +6,10 @@ Aditya Bhatraju | @adibns |
 Aishwarya Gopal | @AishwaryaGopal12  |
 Charles Suresh | @charlessuresh  | 
 
+## Dashboard Link
+
+https://crime-dashboard-group13.herokuapp.com
+
   
 ## Description of The App
 
