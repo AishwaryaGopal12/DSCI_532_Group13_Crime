@@ -33,10 +33,11 @@ def data_filtering_geochart(state, crime, metric, year_range, data_crime):
     pop = data.population_engineers_hurricanes()
     if year_range is not None:
         data_crime = data_crime.loc[data_crime["year"].between(year_range[0], year_range[1])]
-    results = data_crime.groupby('State')['violent_per_100k'].sum()
-    # crimes = [crime_dict[metric][x] for x in crime]
-    # results = data_crime.groupby('State')[[crimes]].sum()
-    results.to_frame()
+    crimes = [crime_dict[metric][x] for x in crime]
+    results = (data_crime[['State'] + crimes]
+                .melt(id_vars = "State", var_name = "crime", value_name = "crime_count")
+                .groupby('State')
+                .sum())
     results_df = pd.merge(results, pop, how = 'right', left_on = 'State', right_on = 'state')
     return results_df
 
@@ -76,7 +77,7 @@ app.layout = dbc.Container([
         dbc.Col(
             html.Iframe(
                 id = 'geochart',
-                style = {'border-width':'0', 'width':'100%', 'height': '400px'})
+                style = {'border-width':'0', 'width':'200%', 'height': '400px'})
         )
     ]),
     dbc.Row([
@@ -105,7 +106,7 @@ app.layout = dbc.Container([
         dbc.Col([
             html.Iframe(
                 id = 'trendchart',
-                style = {'border-width':'0', 'width':'100%', 'height': '400px'})
+                style = {'border-width':'0', 'width':'70%', 'height': '400px'})
         ])
     ])
 ])
@@ -122,10 +123,10 @@ def plot_geochart(state, crime, year_range, metric):
     print('You have selected "{}"'.format(crime))
     results_df = data_filtering_geochart(state, crime, metric, year_range, data_crime)
     states = alt.topo_feature(data.us_10m.url, 'states')
-    geo_chart = alt.Chart(states).mark_geoshape().encode(color='violent_per_100k:Q'
+    geo_chart = alt.Chart(states).mark_geoshape().encode(color='crime_count:Q'
     ).transform_lookup(
     lookup='id',
-    from_=alt.LookupData(results_df, 'id', ['violent_per_100k'])
+    from_=alt.LookupData(results_df, 'id', ['crime_count'])
     ).properties(width=500, height=300
     ).project(type='albersUsa'
     )
