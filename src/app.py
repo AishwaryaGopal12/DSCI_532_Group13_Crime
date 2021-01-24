@@ -8,6 +8,7 @@ from altair import datum
 import pandas as pd
 from vega_datasets import data
 
+
 crime_list = ['Homicide', 'Rape', 'Larceny', 'Violent']
 sum_list = ['homs_sum', 'rape_sum', 'rob_sum', 'violent_crime']
 rate_list = ['homs_per_100k', 'rape_per_100k', 'rob_per_100k', 'violent_per_100k']
@@ -15,11 +16,11 @@ sum_dict = {crime_list[i]: sum_list[i] for i in range(len(crime_list))}
 rate_dict = {crime_list[i]: rate_list[i] for i in range(len(crime_list))}
 crime_dict = {'sum_dict': sum_dict, 'rate_dict': rate_dict}
 
-data_raw = pd.read_csv("data/ucr_crime_1975_2015.csv")
+data_raw = pd.read_csv("data/raw/ucr_crime_1975_2015.csv")
 
 def data_processing(data):
     data['state'] = data['ORI'].str[:2]
-    states = pd.read_csv('./states.csv')
+    states = pd.read_csv('data/raw/states.csv')
     data_with_state = pd.merge(data, states, how = 'left', left_on = 'state', right_on = 'Abbreviation')
     data_with_state = data_with_state.drop(['state', 'Abbreviation', 'url', 'source'], axis = 1)
     return data_with_state
@@ -27,17 +28,6 @@ def data_processing(data):
 data_crime = data_processing(data_raw)
 state_list = data_crime['State'].unique().tolist()
 state_list = [state for state in state_list if str(state) != 'nan']
-
-def data_filtering_geochart(state, crime, metric, year_range, data_crime):
-    pop = data.population_engineers_hurricanes()
-    if year_range is not None:
-        data_crime = data_crime.loc[data_crime["year"].between(year_range[0], year_range[1])]
-    results = data_crime.groupby('State')['violent_per_100k'].sum()
-    # crimes = [crime_dict[metric][x] for x in crime]
-    # results = data_crime.groupby('State')[[crimes]].sum()
-    results.to_frame()
-    results_df = pd.merge(results, pop, how = 'right', left_on = 'State', right_on = 'state')
-    return results_df
 
 def data_filtering_geochart(state, crime, metric, year_range, data_crime):
     pop = data.population_engineers_hurricanes()
