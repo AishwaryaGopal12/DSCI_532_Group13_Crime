@@ -67,16 +67,17 @@ app.layout = dbc.Container([
             dcc.Dropdown(
                 id = 'metric',
                 options=[
-                {'label': 'Rate', 'value': 'rate_dict'},
-                {'label': 'Number', 'value': 'sum_dict'}
-            ],
-            value = 'rate_dict'
+                {'label': 'Rate', 'value': 'Crime Rate'},
+                {'label': 'Number', 'value': 'Crime Count'}
+                ],
+                value = 'Crime Rate',
+                clearable=False
             )
         ], md = 3),
         dbc.Col([
             html.Iframe(
                 id = 'trendchart',
-                style = {'border-width':'0', 'width':'70%', 'height': '400px'})
+                style = {'border-width':'0', 'width':'100%', 'height': '400px'})
         ])
     ])
 ])
@@ -93,8 +94,8 @@ def plot_geochart(state, crime, year_range, metric):
     print('You have selected "{}"'.format(crime))
     results_df = data_filtering_geochart(state, crime, metric, year_range, data_crime)
     states = alt.topo_feature(data.us_10m.url, 'states')
-    geo_chart = alt.Chart(states).mark_geoshape().encode(color='crime_count:Q'
-    ).transform_lookup(
+    geo_chart = alt.Chart(states).mark_geoshape().encode(alt.Color('crime_count:Q',
+    title = metric)).transform_lookup(
     lookup='id',
     from_=alt.LookupData(results_df, 'id', ['crime_count'])
     ).properties(width=500, height=300
@@ -115,9 +116,9 @@ def trend_chart(state, crime, year_range, metric):
     trend_chart_df = data_filtering_trendchart(state, crime, metric, year_range, data_crime)
 
     chart = alt.Chart(trend_chart_df).mark_line().encode(
-        alt.X('year'),
-        alt.Y('crime_count'),
-        alt.Color('crime'))
+        alt.X('year', title = "Year"),
+        alt.Y('crime_count', title = metric),
+        alt.Color('crime', title = 'Crime'))
 
     return chart.to_html()
 
