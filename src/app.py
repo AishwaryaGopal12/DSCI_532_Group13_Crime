@@ -3,6 +3,8 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output
+import plotly.graph_objects as go
+import plotly.express as px
 import altair as alt
 from altair import datum
 import pandas as pd
@@ -33,7 +35,8 @@ app.layout = dbc.Container([
                 id = 'state',
                 options = [{'label': col, 'value': col} for col in state_list], 
                 value = ['Texas'],
-                multi=True),
+                multi=True,
+                style={'height': '2%', 'width': '100%'}),
             html.Br(),
             html.Div('Crime'),
             html.Br(),
@@ -48,6 +51,9 @@ app.layout = dbc.Container([
             html.Iframe(
                 id = 'geochart',
                 style = {'border-width':'0', 'width':'200%', 'height': '400px'})
+        ),
+        dbc.Col(
+            dcc.Graph(id = "treemap")
         )
     ]),
     dbc.Row([
@@ -94,11 +100,16 @@ def plot_geochart(state, crime, year_range, metric):
     print('You have selected "{}"'.format(crime))
     results_df = data_filtering_geochart(state, crime, metric, year_range, data_crime)
     states = alt.topo_feature(data.us_10m.url, 'states')
-    geo_chart = alt.Chart(states).mark_geoshape().encode(alt.Color('crime_count:Q',
-    title = metric)).transform_lookup(
+    geo_chart = alt.Chart(states).mark_geoshape(stroke = 'black').transform_lookup(
     lookup='id',
     from_=alt.LookupData(results_df, 'id', ['crime_count'])
-    ).properties(width=500, height=300
+    ).transform_calculate(
+        crime_count = 'isValid(datum.crime_count) ? datum.crime_count : -1'
+    ).encode(color = alt.condition(
+        'datum.crime_count > 0',
+        alt.Color('crime_count:Q'),
+        alt.value('#dbe9f6')
+    )).properties(width=500, height=300
     ).project(type='albersUsa'
     )
 
@@ -121,6 +132,26 @@ def trend_chart(state, crime, year_range, metric):
         alt.Color('crime', title = 'Crime'))
 
     return chart.to_html()
+
+@app.callback(
+    Output('treemap', 'figure'),
+    Input('state', 'value'),
+    Input('crime', 'value'),
+    Input('year_range', 'value'),
+    Input('metric', 'value')
+)
+def tree_map(state, crime, year_range, metric):
+
+    tree_map = data_filtering_treemap(state, crime, metric, year_range, data_crime)
+
+    fig = px.treemap(
+        tree_map,
+        path=['State', 'crime'],
+        values = 'crime_count'
+    )
+
+    return fig
+
 
 if __name__ == '__main__':
     app.run_server(debug = True)
