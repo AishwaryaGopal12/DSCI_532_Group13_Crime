@@ -3,7 +3,6 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output
-import plotly.graph_objects as go
 import plotly.express as px
 import altair as alt
 from altair import datum
@@ -27,6 +26,7 @@ app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 server = app.server
 
 app.layout = dbc.Container([
+    html.H1("Crime in United States"),
     dbc.Row([
         dbc.Col([
             html.Div('State'),
@@ -35,8 +35,7 @@ app.layout = dbc.Container([
                 id = 'state',
                 options = [{'label': col, 'value': col} for col in state_list], 
                 value = ['Texas'],
-                multi=True,
-                style={'height': '2%', 'width': '100%'}),
+                multi=True),
             html.Br(),
             html.Div('Crime'),
             html.Br(),
@@ -45,19 +44,8 @@ app.layout = dbc.Container([
                 style = {'width':'100%'},
                 options=[{'label': col, 'value': col} for col in crime_list], 
                 value = crime_list,
-                multi=True)
-        ], md=3),
-        dbc.Col(
-            html.Iframe(
-                id = 'geochart',
-                style = {'border-width':'0', 'width':'200%', 'height': '400px'})
-        ),
-        dbc.Col(
-            dcc.Graph(id = "treemap")
-        )
-    ]),
-    dbc.Row([
-        dbc.Col([
+                multi=True),
+            html.Br(),
             html.Div('Year Range'),
             html.Br(),
             dcc.RangeSlider(
@@ -79,12 +67,18 @@ app.layout = dbc.Container([
                 value = 'Crime Rate',
                 clearable=False
             )
-        ], md = 3),
+        ], md= 3),
         dbc.Col([
             html.Iframe(
+                id = 'geochart',
+                style = {'border-width':'0', 'width': '200%', 'height': '400px'}),
+            html.Iframe(
                 id = 'trendchart',
-                style = {'border-width':'0', 'width':'100%', 'height': '400px'})
-        ])
+                style = {'border-width':'0', 'width': '200%', 'height': '400px'})
+        ], md = 6),
+        dbc.Col([
+            dcc.Graph(id = "treemap", style = {'border-width':'0', 'width': '150%', 'height': '800px'})
+        ], md = 3)
     ])
 ])
 @app.callback(
