@@ -26,7 +26,16 @@ app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 server = app.server
 
 app.layout = dbc.Container([
-    html.H1("Crime in United States"),
+    html.H1("Crime in United States",
+    style = {
+        'padding' : 20,
+        'color': 'black',
+        'margin-top': 20,
+        'margin-bottom': 20,
+        'text-align': 'center',
+        'font-size': '48px',
+        'border-radius': 3
+    }),
     dbc.Row([
         dbc.Col([
             html.Div('State'),
@@ -35,13 +44,14 @@ app.layout = dbc.Container([
                 id = 'state',
                 options = [{'label': col, 'value': col} for col in state_list], 
                 value = ['Texas'],
-                multi=True),
+                multi=True,
+                style = {'border': '2px solid black'}),
             html.Br(),
             html.Div('Crime'),
             html.Br(),
             dcc.Dropdown(
                 id = 'crime',
-                style = {'width':'100%'},
+                style = {'width':'100%', 'border': '2px solid black'},
                 options=[{'label': col, 'value': col} for col in crime_list], 
                 value = crime_list,
                 multi=True),
@@ -65,9 +75,15 @@ app.layout = dbc.Container([
                 {'label': 'Number', 'value': 'Crime Count'}
                 ],
                 value = 'Crime Rate',
-                clearable=False
+                clearable=False,
+                style = {'border': '2px solid black'}
             )
-        ], md= 3),
+        ], md= 3,
+        style = {
+            'background-color' : '#e6e6e6',
+            'padding' : 15,
+            'border' : '8px solid black'
+        }),
         dbc.Col([
             html.Iframe(
                 id = 'geochart',
@@ -80,7 +96,8 @@ app.layout = dbc.Container([
             dcc.Graph(id = "treemap", style = {'border-width':'0', 'width': '150%', 'height': '800px'})
         ], md = 3)
     ])
-])
+], fluid=True)
+
 @app.callback(
     Output('geochart', 'srcDoc'),
     Input('state', 'value'),
@@ -101,7 +118,7 @@ def plot_geochart(state, crime, year_range, metric):
         crime_count = 'isValid(datum.crime_count) ? datum.crime_count : -1'
     ).encode(color = alt.condition(
         'datum.crime_count > 0',
-        alt.Color('crime_count:Q'),
+        alt.Color('crime_count:Q', scale = alt.Scale(scheme = 'reds')),
         alt.value('#dbe9f6')
     )).properties(width=500, height=300
     ).project(type='albersUsa'
@@ -141,7 +158,9 @@ def tree_map(state, crime, year_range, metric):
     fig = px.treemap(
         tree_map,
         path=['State', 'crime'],
-        values = 'crime_count'
+        values = 'crime_count',
+        color = 'crime',
+        color_discrete_sequence=px.colors.qualitative.T10
     )
 
     return fig
