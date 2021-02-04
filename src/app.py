@@ -3,6 +3,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output
+import plotly.express as px
 import altair as alt
 from altair import datum
 import pandas as pd
@@ -25,6 +26,7 @@ app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 server = app.server
 
 app.layout = dbc.Container([
+    html.H1("Crime in United States"),
     dbc.Row([
         dbc.Col([
             html.Div('State'),
@@ -42,16 +44,8 @@ app.layout = dbc.Container([
                 style = {'width':'100%'},
                 options=[{'label': col, 'value': col} for col in crime_list], 
                 value = crime_list,
-                multi=True)
-        ], md=3),
-        dbc.Col(
-            html.Iframe(
-                id = 'geochart',
-                style = {'border-width':'0', 'width':'200%', 'height': '400px'})
-        )
-    ]),
-    dbc.Row([
-        dbc.Col([
+                multi=True),
+            html.Br(),
             html.Div('Year Range'),
             html.Br(),
             dcc.RangeSlider(
@@ -73,12 +67,18 @@ app.layout = dbc.Container([
                 value = 'Crime Rate',
                 clearable=False
             )
-        ], md = 3),
+        ], md= 3),
         dbc.Col([
             html.Iframe(
+                id = 'geochart',
+                style = {'border-width':'0', 'width': '200%', 'height': '400px'}),
+            html.Iframe(
                 id = 'trendchart',
-                style = {'border-width':'0', 'width':'100%', 'height': '400px'})
-        ])
+                style = {'border-width':'0', 'width': '200%', 'height': '400px'})
+        ], md = 6),
+        dbc.Col([
+            dcc.Graph(id = "treemap", style = {'border-width':'0', 'width': '150%', 'height': '800px'})
+        ], md = 3)
     ])
 ])
 @app.callback(
@@ -94,11 +94,16 @@ def plot_geochart(state, crime, year_range, metric):
     print('You have selected "{}"'.format(crime))
     results_df = data_filtering_geochart(state, crime, metric, year_range, data_crime)
     states = alt.topo_feature(data.us_10m.url, 'states')
-    geo_chart = alt.Chart(states).mark_geoshape().encode(alt.Color('crime_count:Q',
-    title = metric)).transform_lookup(
+    geo_chart = alt.Chart(states).mark_geoshape(stroke = 'black').transform_lookup(
     lookup='id',
     from_=alt.LookupData(results_df, 'id', ['crime_count'])
-    ).properties(width=500, height=300
+    ).transform_calculate(
+        crime_count = 'isValid(datum.crime_count) ? datum.crime_count : -1'
+    ).encode(color = alt.condition(
+        'datum.crime_count > 0',
+        alt.Color('crime_count:Q'),
+        alt.value('#dbe9f6')
+    )).properties(width=500, height=300
     ).project(type='albersUsa'
     )
 
@@ -121,6 +126,26 @@ def trend_chart(state, crime, year_range, metric):
         alt.Color('crime', title = 'Crime'))
 
     return chart.to_html()
+
+@app.callback(
+    Output('treemap', 'figure'),
+    Input('state', 'value'),
+    Input('crime', 'value'),
+    Input('year_range', 'value'),
+    Input('metric', 'value')
+)
+def tree_map(state, crime, year_range, metric):
+
+    tree_map = data_filtering_treemap(state, crime, metric, year_range, data_crime)
+
+    fig = px.treemap(
+        tree_map,
+        path=['State', 'crime'],
+        values = 'crime_count'
+    )
+
+    return fig
+
 
 if __name__ == '__main__':
     app.run_server(debug = True)
