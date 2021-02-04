@@ -159,7 +159,8 @@ def tree_map(state, crime, year_range, metric):
         tree_map,
         path=['State', 'crime'],
         values = 'crime_count',
-        color = 'crime'
+        color = 'crime',
+        color_discrete_sequence=px.colors.qualitative.T10
     )
 
     return fig
