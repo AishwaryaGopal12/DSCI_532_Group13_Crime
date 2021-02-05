@@ -90,27 +90,28 @@ app.layout = dbc.Container([
                 dbc.CardBody(
                     html.Iframe(
                         id = 'geochart',
-                        style = {'border-width':'0', 'width': '200%', 'height': '400px', 'margin-top': '0', 'margin-left': '0'})
+                        style = {'border-width':'0', 'width': '125%', 'height': '400px', 'margin-top': '0', 'margin-left': '-5%'})
                 )
-            ]),
+            ], style={'border': 'none'}),
             html.Br(),
             dbc.Card([
                 dbc.CardHeader("Trend Chart", style = {'background-color': '#B22222'}),
                 dbc.CardBody(
                     html.Iframe(
                         id = 'trendchart',
-                        style = {'border-width':'0', 'width': '200%', 'height': '400px'}),
+                        style = {'border-width':'0', 'width': '125%', 'height': '400px'}),
                         style = {'margin-top': '0', 'margin-bottom' : '0', 'height': '400px'}
                 )
-            ])
+            ], style={'border': 'none'})
         ], md = 6),
         dbc.Col([
             dbc.Card([
                 dbc.CardHeader("TreeMap", style = {'background-color': '#B22222'}),
                 dbc.CardBody(
-                    dcc.Graph(id = "treemap", style = {'border-width':'0', 'width': '100%', 'height': '700px'})
+                    dcc.Graph(id = "treemap",  style = {'border-width':'0', 'width': '125%', 'height': '1000px', 'margin-left':'-13%'}),
+                    style = {"padding": '0', 'height': '100%'}
                 )
-            ], style = {'margin-top': '0', 'margin-bottom' : '0'})
+            ], style={'border': '2 px solid white'})
         ], md = 3)
     ])
 ], style = {'max-width': '90%'})
