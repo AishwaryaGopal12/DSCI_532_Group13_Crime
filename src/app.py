@@ -29,12 +29,13 @@ app.layout = dbc.Container([
     html.H1("Crime in United States",
     style = {
         'padding' : 20,
-        'color': 'black',
+        'color': 'firebrick',
         'margin-top': 20,
         'margin-bottom': 20,
         'text-align': 'center',
         'font-size': '48px',
-        'border-radius': 3
+        'border-radius': 3,
+        'font-family':'Georgia, Times, serif'
     }),
     dbc.Row([
         dbc.Col([
