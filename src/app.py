@@ -85,18 +85,35 @@ app.layout = dbc.Container([
             'border' : '8px solid black'
         }),
         dbc.Col([
-            html.Iframe(
-                id = 'geochart',
-                style = {'border-width':'0', 'width': '200%', 'height': '400px'}),
-            html.Iframe(
-                id = 'trendchart',
-                style = {'border-width':'0', 'width': '200%', 'height': '400px'})
+            dbc.Card([
+                dbc.CardHeader("Geographical Plot", style = {'background-color': '#B22222'}),
+                dbc.CardBody(
+                    html.Iframe(
+                        id = 'geochart',
+                        style = {'border-width':'0', 'width': '200%', 'height': '400px', 'margin-top': '0', 'margin-left': '0'})
+                )
+            ]),
+            html.Br(),
+            dbc.Card([
+                dbc.CardHeader("Trend Chart", style = {'background-color': '#B22222'}),
+                dbc.CardBody(
+                    html.Iframe(
+                        id = 'trendchart',
+                        style = {'border-width':'0', 'width': '200%', 'height': '400px'}),
+                        style = {'margin-top': '0', 'margin-bottom' : '0', 'height': '400px'}
+                )
+            ])
         ], md = 6),
         dbc.Col([
-            dcc.Graph(id = "treemap", style = {'border-width':'0', 'width': '150%', 'height': '800px'})
+            dbc.Card([
+                dbc.CardHeader("TreeMap", style = {'background-color': '#B22222'}),
+                dbc.CardBody(
+                    dcc.Graph(id = "treemap", style = {'border-width':'0', 'width': '100%', 'height': '700px'})
+                )
+            ], style = {'margin-top': '0', 'margin-bottom' : '0'})
         ], md = 3)
     ])
-], fluid=True)
+], style = {'max-width': '90%'})
 
 @app.callback(
     Output('geochart', 'srcDoc'),
@@ -122,7 +139,7 @@ def plot_geochart(state, crime, year_range, metric):
         alt.value('#dbe9f6')
     )).properties(width=500, height=300
     ).project(type='albersUsa'
-    )
+    ).configure_view(strokeWidth = 0)
 
     return geo_chart.to_html()
 
