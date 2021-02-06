@@ -24,7 +24,8 @@ data_crime = data_processing(data_raw)
 state_list = data_crime['State'].unique().tolist()
 state_list = [state for state in state_list if str(state) != 'nan']
 
-color_discrete_map={"Homicide": "#ff7f0e",
+color_discrete_map={'(?)':'#B22222',
+                    "Homicide": "#ff7f0e",
                     "Rape": "#2ca02c",
                     "Larceny": "#1f77b4",
                     "Aggravated Assault": "#9467bd"}
@@ -159,6 +160,9 @@ def plot_geochart(state, year_range, metric, hom_click, rape_click, larc_click, 
     if not crime:
         crime = ['Homicide', 'Rape', 'Larceny', 'Aggravated Assault']
 
+    if not state:
+        state = state_list
+
     results_df = data_filtering_geochart(state, crime, metric, year_range, data_crime)
     states = alt.topo_feature(data.us_10m.url, 'states')
     geo_chart = alt.Chart(states).mark_geoshape(stroke = 'black').transform_lookup(
@@ -199,23 +203,19 @@ def trend_chart(state, year_range, metric, hom_click, rape_click, larc_click, ag
     if not crime:
         crime = ['Homicide', 'Rape', 'Larceny', 'Aggravated Assault']
 
+    if not state:
+        state = state_list
+
     trend_chart_df = data_filtering_trendchart(state, crime, metric, year_range, data_crime)
 
     chart = alt.Chart(trend_chart_df).mark_line().encode(
         alt.X('year', title = "Year"),
         alt.Y('crime_count', title = metric),
-        alt.Color('crime', title = 'Crime',
+        alt.Color('crime', title = 'Crime', legend = None,
                     scale = alt.Scale(
                         domain=crime,
-                        range=[color_discrete_map[c] for c in crime]
-                    )))
-    chart = chart.configure_legend(
-        strokeColor='gray',
-        fillColor='#EEEEEE',
-        padding=10,
-        cornerRadius=10,
-        orient='top-right'
-        )
+                        range=[color_discrete_map[c] for c in crime])
+                    ))
 
     return chart.to_html()
 
@@ -243,16 +243,18 @@ def tree_map(state, year_range, metric, hom_click, rape_click, larc_click, agg_c
     if not crime_selected:
         crime_selected = ['Homicide', 'Rape', 'Larceny', 'Aggravated Assault']
 
+    if not state:
+        state = state_list
     tree_map = data_filtering_treemap(state, crime_selected, metric, year_range, data_crime)
-    col_map = {c: color_discrete_map[c] for c in crime_selected}
-
+    
     fig = px.treemap(
         tree_map,
         path=['State', 'crime'],
         values = 'crime_count',
         color = 'crime',
-        color_discrete_map=col_map
+        color_discrete_map=color_discrete_map
     )
+    
 
     return fig
 
