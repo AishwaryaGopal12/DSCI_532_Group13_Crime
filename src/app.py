@@ -49,7 +49,7 @@ app.layout = dbc.Container([
             dcc.Dropdown(
                 id = 'state',
                 options = [{'label': col, 'value': col} for col in state_list], 
-                value = ['Texas'],
+                value = state_list[0:10],
                 multi=True,
                 style = {'border': '2px solid black'}),
             html.Br(),

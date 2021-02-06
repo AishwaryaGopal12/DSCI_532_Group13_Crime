@@ -7,12 +7,15 @@ rate_list = ['homs_per_100k', 'rape_per_100k', 'rob_per_100k', 'agg_ass_per_100k
 sum_dict = {crime_list[i]: sum_list[i] for i in range(len(crime_list))} 
 rate_dict = {crime_list[i]: rate_list[i] for i in range(len(crime_list))}
 crime_dict = {'Crime Count': sum_dict, 'Crime Rate': rate_dict}
+
+
 pop = data.population_engineers_hurricanes()
 
 
 def data_filtering_geochart(state, crime, metric, year_range, data_crime):
     if year_range is not None:
         data_crime = data_crime.loc[data_crime["year"].between(year_range[0], year_range[1])]
+    data_crime = data_crime[data_crime['State'].isin(state)]
     crimes = [crime_dict[metric][x] for x in crime]
     results = (data_crime[['State'] + crimes]
                 .melt(id_vars = "State", var_name = "crime", value_name = "crime_count")
@@ -41,6 +44,5 @@ def data_filtering_treemap(state, crime, metric, year_range, data_crime):
     treemap_data = treemap_data.groupby('State')[crimes].mean().reset_index()
     treemap_data = treemap_data.melt(id_vars = "State", var_name = "crime", value_name = "crime_count")
     treemap_data = treemap_data.replace({"crime" : {v: k for k, v in crime_dict[metric].items()}})
-    
 
     return treemap_data
