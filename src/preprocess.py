@@ -1,6 +1,7 @@
 from vega_datasets import data
 import pandas as pd
 
+
 crime_list = ['Homicide', 'Rape', 'Larceny', 'Aggravated Assault']
 sum_list = ['homs_sum', 'rape_sum', 'rob_sum', 'agg_ass_sum']
 rate_list = ['homs_per_100k', 'rape_per_100k', 'rob_per_100k', 'agg_ass_per_100k']
