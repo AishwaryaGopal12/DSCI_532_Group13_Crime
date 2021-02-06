@@ -22,6 +22,11 @@ data_crime = data_processing(data_raw)
 state_list = data_crime['State'].unique().tolist()
 state_list = [state for state in state_list if str(state) != 'nan']
 
+color_discrete_map={"Homicide": "#ff7f0e",
+                    "Rape": "#2ca02c",
+                    "Larceny": "#1f77b4",
+                    "Aggravated Assault": "#9467bd"}
+
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 server = app.server
 
@@ -159,7 +164,11 @@ def trend_chart(state, crime, year_range, metric):
     chart = alt.Chart(trend_chart_df).mark_line().encode(
         alt.X('year', title = "Year"),
         alt.Y('crime_count', title = metric),
-        alt.Color('crime', title = 'Crime'))
+        alt.Color('crime', title = 'Crime',
+                    scale = alt.Scale(
+                        domain=crime,
+                        range=[color_discrete_map[c] for c in crime]
+                    )))
 
     return chart.to_html()
 
@@ -173,13 +182,14 @@ def trend_chart(state, crime, year_range, metric):
 def tree_map(state, crime, year_range, metric):
 
     tree_map = data_filtering_treemap(state, crime, metric, year_range, data_crime)
+    col_map = {c: color_discrete_map[c] for c in crime}
 
     fig = px.treemap(
         tree_map,
         path=['State', 'crime'],
         values = 'crime_count',
         color = 'crime',
-        color_discrete_sequence=px.colors.qualitative.T10
+        color_discrete_map=col_map
     )
 
     return fig

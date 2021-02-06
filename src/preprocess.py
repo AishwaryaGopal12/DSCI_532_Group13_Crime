@@ -28,6 +28,7 @@ def data_filtering_trendchart(state, crime, metric, year_range, data_crime):
     trend_data = trend_data[(trend_data['year']>=year_range[0]) & (trend_data['year']<=year_range[1])]
     trend_data = trend_data.groupby('year')[crimes].mean().reset_index()
     trend_data = trend_data.melt(id_vars = "year", var_name = "crime", value_name = "crime_count")
+    trend_data = trend_data.replace({"crime" : {v: k for k, v in crime_dict[metric].items()}})
 
     return trend_data
 
@@ -39,5 +40,7 @@ def data_filtering_treemap(state, crime, metric, year_range, data_crime):
     treemap_data = data_crime[data_crime['State'].isin(state)]
     treemap_data = treemap_data.groupby('State')[crimes].mean().reset_index()
     treemap_data = treemap_data.melt(id_vars = "State", var_name = "crime", value_name = "crime_count")
+    treemap_data = treemap_data.replace({"crime" : {v: k for k, v in crime_dict[metric].items()}})
+    
 
     return treemap_data
