@@ -29,12 +29,13 @@ app.layout = dbc.Container([
     html.H1("Crime in United States",
     style = {
         'padding' : 20,
-        'color': 'black',
+        'color': 'firebrick',
         'margin-top': 20,
         'margin-bottom': 20,
         'text-align': 'center',
         'font-size': '48px',
-        'border-radius': 3
+        'border-radius': 3,
+        'font-family':'Georgia, Times, serif'
     }),
     dbc.Row([
         dbc.Col([
@@ -85,18 +86,36 @@ app.layout = dbc.Container([
             'border' : '8px solid black'
         }),
         dbc.Col([
-            html.Iframe(
-                id = 'geochart',
-                style = {'border-width':'0', 'width': '200%', 'height': '400px'}),
-            html.Iframe(
-                id = 'trendchart',
-                style = {'border-width':'0', 'width': '200%', 'height': '400px'})
+            dbc.Card([
+                dbc.CardHeader("Geographical Plot", style = {'background-color': '#B22222'}),
+                dbc.CardBody(
+                    html.Iframe(
+                        id = 'geochart',
+                        style = {'border-width':'0', 'width': '125%', 'height': '400px', 'margin-top': '0', 'margin-left': '-5%'})
+                )
+            ], style={'border': 'none'}),
+            html.Br(),
+            dbc.Card([
+                dbc.CardHeader("Trend Chart", style = {'background-color': '#B22222'}),
+                dbc.CardBody(
+                    html.Iframe(
+                        id = 'trendchart',
+                        style = {'border-width':'0', 'width': '125%', 'height': '400px'}),
+                        style = {'margin-top': '0', 'margin-bottom' : '0', 'height': '400px'}
+                )
+            ], style={'border': 'none'})
         ], md = 6),
         dbc.Col([
-            dcc.Graph(id = "treemap", style = {'border-width':'0', 'width': '150%', 'height': '800px'})
+            dbc.Card([
+                dbc.CardHeader("TreeMap", style = {'background-color': '#B22222'}),
+                dbc.CardBody(
+                    dcc.Graph(id = "treemap",  style = {'border-width':'0', 'width': '125%', 'height': '1000px', 'margin-left':'-13%'}),
+                    style = {"padding": '0', 'height': '100%'}
+                )
+            ], style={'border': '2 px solid white'})
         ], md = 3)
     ])
-], fluid=True)
+], style = {'max-width': '90%'})
 
 @app.callback(
     Output('geochart', 'srcDoc'),
@@ -122,7 +141,7 @@ def plot_geochart(state, crime, year_range, metric):
         alt.value('#dbe9f6')
     )).properties(width=500, height=300
     ).project(type='albersUsa'
-    )
+    ).configure_view(strokeWidth = 0)
 
     return geo_chart.to_html()
 
