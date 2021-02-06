@@ -1,9 +1,9 @@
 from vega_datasets import data
 import pandas as pd
 
-crime_list = ['Homicide', 'Rape', 'Larceny', 'Violent']
-sum_list = ['homs_sum', 'rape_sum', 'rob_sum', 'violent_crime']
-rate_list = ['homs_per_100k', 'rape_per_100k', 'rob_per_100k', 'violent_per_100k']
+crime_list = ['Homicide', 'Rape', 'Larceny', 'Aggravated Assault']
+sum_list = ['homs_sum', 'rape_sum', 'rob_sum', 'agg_ass_sum']
+rate_list = ['homs_per_100k', 'rape_per_100k', 'rob_per_100k', 'agg_ass_per_100k']
 sum_dict = {crime_list[i]: sum_list[i] for i in range(len(crime_list))} 
 rate_dict = {crime_list[i]: rate_list[i] for i in range(len(crime_list))}
 crime_dict = {'Crime Count': sum_dict, 'Crime Rate': rate_dict}
