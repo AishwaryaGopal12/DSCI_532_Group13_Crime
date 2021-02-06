@@ -69,7 +69,7 @@ app.layout = dbc.Container([
             html.Br(),
             html.Br(),
             html.Button('Larceny', id='larc_click', n_clicks=0, style = larc_button),
-            html.Button('Aggarvated Assault', id='agg_click', n_clicks=0, style = agg_button),
+            html.Button('Aggravated Assault', id='agg_click', n_clicks=0, style = agg_button),
             html.Br(),
             html.Br(),
             html.Div('Metric'),
@@ -172,12 +172,14 @@ def plot_geochart(state, year_range, metric, hom_click, rape_click, larc_click, 
         crime_count = 'isValid(datum.crime_count) ? datum.crime_count : -1'
     ).encode(color = alt.condition(
         'datum.crime_count > 0',
-        alt.Color('crime_count:Q', scale = alt.Scale(scheme = 'reds')),
+        alt.Color('crime_count:Q', scale = alt.Scale(scheme = 'reds'), title = metric),
         alt.value('#dbe9f6')
     )).properties(width=500, height=300
     ).project(type='albersUsa'
     ).configure_view(strokeWidth = 0)
-
+    geo_chart = geo_chart.configure_legend(orient='none', direction= "horizontal",
+                                    legendX=45, legendY= 300, gradientVerticalMinLength = 400,
+                                     titleAnchor= alt.TitleAnchor('middle'))
     return geo_chart.to_html()
 
 @app.callback(
@@ -209,7 +211,7 @@ def trend_chart(state, year_range, metric, hom_click, rape_click, larc_click, ag
     trend_chart_df = data_filtering_trendchart(state, crime, metric, year_range, data_crime)
 
     chart = alt.Chart(trend_chart_df).mark_line().encode(
-        alt.X('year', title = "Year"),
+        alt.X('year', title = "Year", axis=alt.Axis(format="d", tickCount=10)),
         alt.Y('crime_count', title = metric),
         alt.Color('crime', title = 'Crime', legend = None,
                     scale = alt.Scale(
