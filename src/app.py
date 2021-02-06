@@ -54,16 +54,18 @@ app.layout = dbc.Container([
     }),
     dbc.Row([
         dbc.Col([
-            html.Div('State'),
+            html.Div('State:'),
             html.Br(),
             dcc.Dropdown(
                 id = 'state',
                 options = [{'label': col, 'value': col} for col in state_list], 
-                value = state_list[0:25],
+                value = state_list,
                 multi=True,
                 style = {'border': '2px solid black'}),
             html.Br(),
-            html.Div('Crime'),
+            html.Br(),
+            html.Div('Crime:'),
+            html.Br(),
             html.Button('Homicide', id='hom_click', n_clicks=0, style = hom_button),
             html.Button('Rape', id='rape_click', n_clicks=0, style = rape_button),
             html.Br(),
@@ -72,21 +74,21 @@ app.layout = dbc.Container([
             html.Button('Aggravated Assault', id='agg_click', n_clicks=0, style = agg_button),
             html.Br(),
             html.Br(),
-            html.Div('Metric'),
+            html.Div('Crime Metric:'),
             html.Br(),
             dcc.Dropdown(
                 id = 'metric',
                 options=[
-                {'label': 'Rate', 'value': 'Crime Rate'},
-                {'label': 'Number', 'value': 'Crime Count'}
+                {'label': 'Rate', 'value': 'Crime Rate (Crimes Commited Per 100,000 People)'},
+                {'label': 'Number', 'value': 'Number of Crimes Commited'}
                 ],
-                value = 'Crime Rate',
+                value = 'Crime Rate (Crimes Commited Per 100,000 People)',
                 clearable=False,
                 style = {'border': '2px solid black'}
             ),
             html.Br(),
             html.Br(),
-            html.Div('Year Range'),
+            html.Div('Year Range:'),
             html.Br(),
             dcc.RangeSlider(
                 id = 'year_range',
@@ -103,7 +105,8 @@ app.layout = dbc.Container([
         }),
         dbc.Col([
             dbc.Card([
-                dbc.CardHeader("Geographical Plot", style = {'background-color': '#B22222'}),
+                dbc.CardHeader("Crime Rate/Crime Count By Region",
+                style = {'background-color': '#B22222','textAlign': 'center', 'font-weight': 'bold'}),
                 dbc.CardBody(
                     html.Iframe(
                         id = 'geochart',
@@ -112,7 +115,8 @@ app.layout = dbc.Container([
             ], style={'border': 'none'}),
             html.Br(),
             dbc.Card([
-                dbc.CardHeader("Trend Chart", style = {'background-color': '#B22222'}),
+                dbc.CardHeader("Crime Rate/Crime Count Over the Years",
+                style = {'background-color': '#B22222','textAlign': 'center', 'font-weight': 'bold', 'font-size': '16px'}),
                 dbc.CardBody(
                     html.Iframe(
                         id = 'trendchart',
@@ -123,14 +127,20 @@ app.layout = dbc.Container([
         ], md = 6),
         dbc.Col([
             dbc.Card([
-                dbc.CardHeader("TreeMap", style = {'background-color': '#B22222'}),
+                dbc.CardHeader("Crime Distribution",
+                style = {'background-color': '#B22222','textAlign': 'center', 'font-weight': 'bold'}),
                 dbc.CardBody(
                     dcc.Graph(id = "treemap",  style = {'border-width':'0', 'width': '125%', 'height': '1000px', 'margin-left':'-13%'}),
                     style = {"padding": '0', 'height': '100%'}
                 )
             ], style={'border': '2 px solid white'})
         ], md = 3)
-    ])
+    ]), html.Hr(),
+    html.P(f'''
+    This dashboard was made by Aditya, Aishwarya and Charles Suresh.
+    Github Link: https://github.com/UBC-MDS/DSCI_532_Group13_Crime
+    The city-crimes dataset collected as part of The Marshall Project has been used.
+    ''')
 ], style = {'max-width': '90%'})
 
 @app.callback(
@@ -165,6 +175,7 @@ def plot_geochart(state, year_range, metric, hom_click, rape_click, larc_click, 
 
     results_df = data_filtering_geochart(state, crime, metric, year_range, data_crime)
     states = alt.topo_feature(data.us_10m.url, 'states')
+    
     geo_chart = alt.Chart(states).mark_geoshape(stroke = 'black').transform_lookup(
     lookup='id',
     from_=alt.LookupData(results_df, 'id', ['crime_count'])
@@ -179,7 +190,7 @@ def plot_geochart(state, year_range, metric, hom_click, rape_click, larc_click, 
     ).configure_view(strokeWidth = 0)
     geo_chart = geo_chart.configure_legend(orient='none', direction= "horizontal",
                                     legendX=45, legendY= 300, gradientVerticalMinLength = 400,
-                                     titleAnchor= alt.TitleAnchor('middle'))
+                                     titleAnchor= alt.TitleAnchor('middle'), titleLimit=350)
     return geo_chart.to_html()
 
 @app.callback(
