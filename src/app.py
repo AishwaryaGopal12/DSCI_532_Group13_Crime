@@ -76,14 +76,13 @@ app.layout = dbc.Container([
             html.Br(),
             html.Br(),
             html.Div('Crime Metric:'),
-            html.Br(),
             dcc.Dropdown(
                 id = 'metric',
                 options=[
-                {'label': 'Rate', 'value': 'Crime Rate (Crimes Commited Per 100,000 People)'},
-                {'label': 'Number', 'value': 'Number of Crimes Commited'}
+                {'label': 'Rate (Crimes per 100k People)', 'value': 'Crime Rate (Crimes Committed Per 100,000 People)'},
+                {'label': 'Number of Crimes Committed', 'value': 'Number of Crimes Committed'}
                 ],
-                value = 'Crime Rate (Crimes Commited Per 100,000 People)',
+                value = 'Crime Rate (Crimes Committed Per 100,000 People)',
                 clearable=False,
                 style = {'border': '2px solid black'}
             ),
@@ -238,7 +237,7 @@ def trend_chart(state, year_range, metric, hom_click, rape_click, larc_click, ag
         state = state_list
 
     crime_metric = "Crime Rate"
-    if metric == 'Number of Crimes Commited':
+    if metric == 'Number of Crimes Committed':
         crime_metric = "Crime Count"
 
     trend_chart_df = data_filtering_trendchart(state, crime, metric, year_range, data_crime)
