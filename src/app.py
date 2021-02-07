@@ -38,7 +38,8 @@ larc_button = {'background-color': "#2ca02c",  'width': '48%', 'height': '75px',
 rape_button = {'background-color': "#ff7f0e",  'width': '48%', 'height': '75px', 'margin': '0.5px 2px', 'font-size': '14px'}
 agg_button = {'background-color': "#1f77b4",  'width': '48%', 'height': '75px', 'margin': '0.5px 2px', 'font-size': '10px'}
 
-app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+app.title = "Crime in United States"
 server = app.server
 tab_height = '5vh'
 app.layout = dbc.Container([
