@@ -8,6 +8,7 @@ import altair as alt
 from altair import datum
 import pandas as pd
 from preprocess import *
+import plotly.graph_objects as go
 
 alt.renderers.set_embed_options(actions=False)
 
@@ -25,21 +26,21 @@ state_list = data_crime['State'].unique().tolist()
 state_list = [state for state in state_list if str(state) != 'nan']
 
 color_discrete_map={'(?)':'#B22222',
-                    "Homicide": "#ff7f0e",
-                    "Rape": "#2ca02c",
-                    "Larceny": "#1f77b4",
-                    "Aggravated Assault": "#9467bd"}
+                    "Homicide": "#9467bd",
+                    "Rape": "#ff7f0e",
+                    "Larceny": "#2ca02c",
+                    "Aggravated Assault": "#1f77b4"}
 
 
 button_style_white = {'background-color': 'white', 'width': '185px', 'height': '75px', 'margin': '0.5px 2px', 'font-size': '18px'}
-hom_button = {'background-color': "#ff7f0e", 'width': '185px', 'height': '75px', 'margin': '0.5px 2px', 'font-size': '18px'}
-larc_button = {'background-color': "#1f77b4",  'width': '185px', 'height': '75px', 'margin': '0.5px 2px', 'font-size': '18px'}
-rape_button = {'background-color': "#2ca02c",  'width': '185px', 'height': '75px', 'margin': '0.5px 2px', 'font-size': '18px'}
-agg_button = {'background-color': "#9467bd",  'width': '185px', 'height': '75px', 'margin': '0.5px 2px', 'font-size': '18px'}
+hom_button = {'background-color': "#9467bd", 'width': '185px', 'height': '75px', 'margin': '0.5px 2px', 'font-size': '18px'}
+larc_button = {'background-color': "#2ca02c",  'width': '185px', 'height': '75px', 'margin': '0.5px 2px', 'font-size': '18px'}
+rape_button = {'background-color': "#ff7f0e",  'width': '185px', 'height': '75px', 'margin': '0.5px 2px', 'font-size': '18px'}
+agg_button = {'background-color': "#1f77b4",  'width': '185px', 'height': '75px', 'margin': '0.5px 2px', 'font-size': '18px'}
 
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 server = app.server
-
+tab_height = '5vh'
 app.layout = dbc.Container([
     html.H1("Crime in United States",
     style = {
@@ -126,14 +127,23 @@ app.layout = dbc.Container([
             ], style={'border': 'none'})
         ], md = 6),
         dbc.Col([
-            dbc.Card([
-                dbc.CardHeader("Crime Distribution",
-                style = {'background-color': '#B22222','textAlign': 'center', 'font-weight': 'bold'}),
+            dbc.Card([dbc.CardHeader("Distribution of Crime Based On:",
+                style = {'background-color': '#B22222','textAlign': 'center', 'font-weight': 'bold', 'font-size': '16px', 'border-bottom': 'none'}),
                 dbc.CardBody(
-                    dcc.Graph(id = "treemap",  style = {'border-width':'0', 'width': '125%', 'height': '1000px', 'margin-left':'-13%'}),
-                    style = {"padding": '0', 'height': '100%'}
-                )
-            ], style={'border': '2 px solid white'})
+                    dbc.Tabs(
+                [
+                    dbc.Tab(label="Crime Type", tab_id="tab-1",
+                            tab_style={"width": "50%"}, label_style={"color": "black"}),
+                    dbc.Tab(label="State", tab_id="tab-2",
+                            tab_style={"width": "50%"}, label_style={"color": "black"}),
+                ],
+                id="card-tabs",
+                card=True,
+                active_tab="tab-1",
+                style={'border' : '0px', 'background-color': '#B22222', 'height':tab_height}
+            ), style = {'background-color': '#B22222','textAlign': 'center', 'font-weight': 'bold', 'padding-top' : '0'}),
+                dbc.CardBody(html.P(id="card-content", className="card-text"), style = {"padding": '0', 'height': '100%'}),
+            ], style={'border': '2 px solid white'}),
         ], md = 3)
     ]), html.Hr(),
     html.P(f'''
@@ -142,6 +152,15 @@ app.layout = dbc.Container([
     The city-crimes dataset collected as part of The Marshall Project has been used.
     ''')
 ], style = {'max-width': '90%'})
+
+@app.callback(
+    Output("card-content", "children"), [Input("card-tabs", "active_tab")]
+)
+def tab_content(active_tab):
+    if active_tab == "tab-1":
+        return dcc.Graph(id = "treemap",  style = {'border-width':'0', 'width': '125%', 'height': '1000px', 'margin-left':'-13%'})
+    elif active_tab == "tab-2":
+        return dcc.Graph(id = "treemap_2",  style = {'border-width':'0', 'width': '125%', 'height': '1000px', 'margin-left':'-13%'})
 
 @app.callback(
     Output('geochart', 'srcDoc'),
@@ -219,18 +238,25 @@ def trend_chart(state, year_range, metric, hom_click, rape_click, larc_click, ag
     if not state:
         state = state_list
 
+    crime_metric = "Crime Rate"
+    if metric == 'Number of Crimes Commited':
+        crime_metric = "Crime Count"
+
     trend_chart_df = data_filtering_trendchart(state, crime, metric, year_range, data_crime)
 
-    chart = alt.Chart(trend_chart_df).mark_line().encode(
+    chart = alt.Chart(trend_chart_df).encode(
         alt.X('year', title = "Year", axis=alt.Axis(format="d", tickCount=10)),
         alt.Y('crime_count', title = metric),
         alt.Color('crime', title = 'Crime', legend = None,
                     scale = alt.Scale(
                         domain=crime,
-                        range=[color_discrete_map[c] for c in crime])
-                    ))
+                        range=[color_discrete_map[c] for c in crime])),
+        tooltip=[alt.Tooltip('crime_count', title=crime_metric, formatType="number", format=".0f"),
+                alt.Tooltip('crime', title='Crime Type'),
+                alt.Tooltip('year', title='Year')])
 
-    return chart.to_html()
+    trend_plot = chart.mark_line(size=3) + chart.mark_circle(size=30)
+    return trend_plot.to_html()
 
 @app.callback(
     Output('treemap', 'figure'),
@@ -259,7 +285,46 @@ def tree_map(state, year_range, metric, hom_click, rape_click, larc_click, agg_c
     if not state:
         state = state_list
     tree_map = data_filtering_treemap(state, crime_selected, metric, year_range, data_crime)
-    
+    tree_map['more_crimes'] = tree_map['crime']
+    fig = px.treemap(
+        tree_map,
+        path=['crime', 'State'],
+        values = 'crime_count',
+        color = 'crime',
+        color_discrete_map=color_discrete_map
+    )
+    fig.update_layout(margin_l= 50, margin_r=50,margin_t=10)
+
+    return fig
+
+@app.callback(
+    Output('treemap_2', 'figure'),
+    Input('state', 'value'),
+    Input('year_range', 'value'),
+    Input('metric', 'value'),
+    Input('hom_click', 'n_clicks'),
+    Input('rape_click', 'n_clicks'),
+    Input('larc_click', 'n_clicks'),
+    Input('agg_click', 'n_clicks')
+)
+def tree_map_2(state, year_range, metric, hom_click, rape_click, larc_click, agg_click):
+
+    crime_selected = ['Homicide', 'Rape', 'Larceny', 'Aggravated Assault']
+    if hom_click % 2  != 0:
+        crime_selected.remove('Homicide')
+    if rape_click % 2  != 0:
+        crime_selected.remove('Rape')
+    if larc_click % 2  != 0:
+        crime_selected.remove('Larceny')
+    if agg_click % 2  != 0:
+        crime_selected.remove('Aggravated Assault')
+    if not crime_selected:
+        crime_selected = ['Homicide', 'Rape', 'Larceny', 'Aggravated Assault']
+
+    if not state:
+        state = state_list
+    tree_map = data_filtering_treemap_2(state, crime_selected, metric, year_range, data_crime)
+    tree_map['more_crimes'] = tree_map['crime']
     fig = px.treemap(
         tree_map,
         path=['State', 'crime'],
@@ -267,10 +332,8 @@ def tree_map(state, year_range, metric, hom_click, rape_click, larc_click, agg_c
         color = 'crime',
         color_discrete_map=color_discrete_map
     )
-    
-
+    fig.update_layout(margin_l= 50, margin_r=50, margin_t=10)
     return fig
-
 
 @app.callback(
     Output('larc_click', 'style'),
@@ -309,4 +372,4 @@ def all_button_style(clicks_hom, clicks_rape, clicks_larc, clicks_agg):
     return larc_but, hom_but, rape_but, agg_but
 
 if __name__ == '__main__':
-    app.run_server(debug = True)
+    app.run_server(debug = True,dev_tools_ui=False,dev_tools_props_check=False)
