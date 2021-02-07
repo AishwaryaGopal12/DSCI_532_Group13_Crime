@@ -38,7 +38,8 @@ larc_button = {'background-color': "#2ca02c",  'width': '48%', 'height': '75px',
 rape_button = {'background-color': "#ff7f0e",  'width': '48%', 'height': '75px', 'margin': '0.5px 2px', 'font-size': '14px'}
 agg_button = {'background-color': "#1f77b4",  'width': '48%', 'height': '75px', 'margin': '0.5px 2px', 'font-size': '10px'}
 
-app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+app.title = "Crime in United States"
 server = app.server
 tab_height = '5vh'
 app.layout = dbc.Container([
@@ -76,14 +77,13 @@ app.layout = dbc.Container([
             html.Br(),
             html.Br(),
             html.Div('Crime Metric:'),
-            html.Br(),
             dcc.Dropdown(
                 id = 'metric',
                 options=[
-                {'label': 'Rate', 'value': 'Crime Rate (Crimes Commited Per 100,000 People)'},
-                {'label': 'Number', 'value': 'Number of Crimes Commited'}
+                {'label': 'Rate (Crimes per 100k People)', 'value': 'Crime Rate (Crimes Committed Per 100,000 People)'},
+                {'label': 'Number of Crimes Committed', 'value': 'Number of Crimes Committed'}
                 ],
-                value = 'Crime Rate (Crimes Commited Per 100,000 People)',
+                value = 'Crime Rate (Crimes Committed Per 100,000 People)',
                 clearable=False,
                 style = {'border': '2px solid black'}
             ),
@@ -238,7 +238,7 @@ def trend_chart(state, year_range, metric, hom_click, rape_click, larc_click, ag
         state = state_list
 
     crime_metric = "Crime Rate"
-    if metric == 'Number of Crimes Commited':
+    if metric == 'Number of Crimes Committed':
         crime_metric = "Crime Count"
 
     trend_chart_df = data_filtering_trendchart(state, crime, metric, year_range, data_crime)

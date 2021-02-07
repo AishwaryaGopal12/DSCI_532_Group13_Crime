@@ -7,7 +7,7 @@ sum_list = ['homs_sum', 'rape_sum', 'rob_sum', 'agg_ass_sum']
 rate_list = ['homs_per_100k', 'rape_per_100k', 'rob_per_100k', 'agg_ass_per_100k']
 sum_dict = {crime_list[i]: sum_list[i] for i in range(len(crime_list))} 
 rate_dict = {crime_list[i]: rate_list[i] for i in range(len(crime_list))}
-crime_dict = {'Number of Crimes Commited': sum_dict, 'Crime Rate (Crimes Commited Per 100,000 People)': rate_dict}
+crime_dict = {'Number of Crimes Committed': sum_dict, 'Crime Rate (Crimes Committed Per 100,000 People)': rate_dict}
 
 
 pop = data.population_engineers_hurricanes()
