@@ -32,11 +32,11 @@ color_discrete_map={'(?)':'#B22222',
                     "Aggravated Assault": "#1f77b4"}
 
 
-button_style_white = {'background-color': 'white', 'width': '185px', 'height': '75px', 'margin': '0.5px 2px', 'font-size': '18px'}
-hom_button = {'background-color': "#9467bd", 'width': '185px', 'height': '75px', 'margin': '0.5px 2px', 'font-size': '18px'}
-larc_button = {'background-color': "#2ca02c",  'width': '185px', 'height': '75px', 'margin': '0.5px 2px', 'font-size': '18px'}
-rape_button = {'background-color': "#ff7f0e",  'width': '185px', 'height': '75px', 'margin': '0.5px 2px', 'font-size': '18px'}
-agg_button = {'background-color': "#1f77b4",  'width': '185px', 'height': '75px', 'margin': '0.5px 2px', 'font-size': '18px'}
+button_style_white = {'background-color': 'white', 'width': '48%', 'height': '75px', 'margin': '0.5px 2px', 'font-size': '10px'}
+hom_button = {'background-color': "#9467bd", 'width': '48%', 'height': '75px', 'margin': '0.5px 2px', 'font-size': '14px'}
+larc_button = {'background-color': "#2ca02c",  'width': '48%', 'height': '75px', 'margin': '0.5px 2px', 'font-size': '14px'}
+rape_button = {'background-color': "#ff7f0e",  'width': '48%', 'height': '75px', 'margin': '0.5px 2px', 'font-size': '14px'}
+agg_button = {'background-color': "#1f77b4",  'width': '48%', 'height': '75px', 'margin': '0.5px 2px', 'font-size': '10px'}
 
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 server = app.server
@@ -146,11 +146,10 @@ app.layout = dbc.Container([
             ], style={'border': '2 px solid white'}),
         ], md = 3)
     ]), html.Hr(),
-    html.P(f'''
-    This dashboard was made by Aditya, Aishwarya and Charles Suresh.
-    Github Link: https://github.com/UBC-MDS/DSCI_532_Group13_Crime
-    The city-crimes dataset collected as part of The Marshall Project has been used.
-    ''')
+    html.P([f'''
+    This dashboard was made by Aditya, Aishwarya and Charles Suresh. ''',
+    ''' The city-crimes dataset collected as part of The Marshall Project has been used. Here is the link to the code: ''',
+    html.A('Github Link', href = "https://github.com/UBC-MDS/DSCI_532_Group13_Crime")])
 ], style = {'max-width': '90%'})
 
 @app.callback(
@@ -195,7 +194,7 @@ def plot_geochart(state, year_range, metric, hom_click, rape_click, larc_click, 
     results_df = data_filtering_geochart(state, crime, metric, year_range, data_crime)
     states = alt.topo_feature(data.us_10m.url, 'states')
     
-    geo_chart = alt.Chart(states).mark_geoshape(stroke = 'black').transform_lookup(
+    geo_chart = alt.Chart(states).mark_geoshape(stroke = 'black', tooltip = True).transform_lookup(
     lookup='id',
     from_=alt.LookupData(results_df, 'id', ['crime_count'])
     ).transform_calculate(
@@ -372,4 +371,4 @@ def all_button_style(clicks_hom, clicks_rape, clicks_larc, clicks_agg):
     return larc_but, hom_but, rape_but, agg_but
 
 if __name__ == '__main__':
-    app.run_server(debug = True,dev_tools_ui=False,dev_tools_props_check=False)
+    app.run_server(dev_tools_ui=False,dev_tools_props_check=False)
